@@ -1,0 +1,30 @@
+// codes to output final csv file.
+
+[cloudera@quickstart Desktop]$ hive -e 'select w.est,w.meantemp,w.meanhumidity,w.meanwindspeed, w.meanvisbility, w.event, b.* from bosweather5 w right outer join bosLog b on (w.est = b.date)' > /home/cloudera/Desktop/data.csv
+2016-12-12 14:57:17,969 WARN  [main] mapreduce.TableMapReduceUtil: The hbase-prefix-tree module jar containing PrefixTreeCodec is not present.  Continuing without it.
+
+Logging initialized using configuration in file:/etc/hive/conf.dist/hive-log4j.properties
+Query ID = cloudera_20161212145757_6a29066a-1ecd-4b1e-a215-1be5b49a4e36
+Total jobs = 1
+Execution log at: /tmp/cloudera/cloudera_20161212145757_6a29066a-1ecd-4b1e-a215-1be5b49a4e36.log
+2016-12-12 02:57:44	Starting to launch local task to process map join;	maximum memory = 1013645312
+2016-12-12 02:57:47	Dump the side-table for tag: 0 with group count: 1827 into file: file:/tmp/cloudera/771505fc-28e8-4f44-a7dc-d7b9deb212cb/hive_2016-12-12_14-57-30_748_5723302519229435523-1/-local-10003/HashTable-Stage-3/MapJoin-mapfile00--.hashtable
+2016-12-12 02:57:47	Uploaded 1 File to: file:/tmp/cloudera/771505fc-28e8-4f44-a7dc-d7b9deb212cb/hive_2016-12-12_14-57-30_748_5723302519229435523-1/-local-10003/HashTable-Stage-3/MapJoin-mapfile00--.hashtable (76361 bytes)
+2016-12-12 02:57:47	End of local task; Time Taken: 3.101 sec.
+Execution completed successfully
+MapredLocal task succeeded
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1480559778158_0023, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1480559778158_0023/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1480559778158_0023
+Hadoop job information for Stage-3: number of mappers: 1; number of reducers: 0
+2016-12-12 14:58:07,187 Stage-3 map = 0%,  reduce = 0%
+2016-12-12 14:58:24,341 Stage-3 map = 100%,  reduce = 0%, Cumulative CPU 3.69 sec
+MapReduce Total cumulative CPU time: 3 seconds 690 msec
+Ended Job = job_1480559778158_0023
+MapReduce Jobs Launched: 
+Stage-Stage-3: Map: 1   Cumulative CPU: 3.69 sec   HDFS Read: 49997 HDFS Write: 123412 SUCCESS
+Total MapReduce CPU Time Spent: 3 seconds 690 msec
+OK
+Time taken: 54.87 seconds, Fetched: 1620 row(s)
+[cloudera@quickstart Desktop]$ 

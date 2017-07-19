@@ -1,0 +1,51 @@
+
+// this file includes step to ingest data, merged input data, and create tables for 5 year weather record for weather record near BOS team.
+
+// make directory
+[cloudera@quickstart ~]$ hdfs dfs -mkdir bosweather
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2011bos.txt bosweather
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/2011bos.txt bosweather
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/2012bos.txt bosweather
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/2013bos.txt bosweather
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/2014bos.txt bosweather
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/2015bos.txt bosweather
+
+// check the directory
+[cloudera@quickstart ~]$ hdfs dfs -ls bosweather
+Found 5 items
+-rw-r--r--   1 cloudera cloudera      31670 2016-12-12 10:02 bosweather/2011bos.txt
+-rw-r--r--   1 cloudera cloudera      31702 2016-12-12 10:03 bosweather/2012bos.txt
+-rw-r--r--   1 cloudera cloudera      31736 2016-12-12 10:03 bosweather/2013bos.txt
+-rw-r--r--   1 cloudera cloudera      31655 2016-12-12 10:03 bosweather/2014bos.txt
+-rw-r--r--   1 cloudera cloudera      31609 2016-12-12 10:03 bosweather/2015bos.txt
+
+//merge files into one
+
+[cloudera@quickstart ~]$ hdfs dfs -getmerge bosweather /home/cloudera/Desktop/2/bos/bosweather5.txt
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/bosweather5.txt bosweather
+
+//check the directory
+
+[cloudera@quickstart ~]$ cloudera@quickstart ~]$ hdfs dfs -ls bosweather
+Found 6 items
+-rw-r--r--   1 cloudera cloudera      31670 2016-12-12 10:02 bosweather/2011bos.txt
+-rw-r--r--   1 cloudera cloudera      31702 2016-12-12 10:03 bosweather/2012bos.txt
+-rw-r--r--   1 cloudera cloudera      31736 2016-12-12 10:03 bosweather/2013bos.txt
+-rw-r--r--   1 cloudera cloudera      31655 2016-12-12 10:03 bosweather/2014bos.txt
+-rw-r--r--   1 cloudera cloudera      31609 2016-12-12 10:03 bosweather/2015bos.txt
+-rw-r--r--   1 cloudera cloudera     158377 2016-12-12 10:11 bosweather/bosweather5y.txt
+
+//cat
+[cloudera@quickstart ~]$ hdfs dfs -cat bosweather/bosweather5r.txt
+
+//run hive
+[cloudera@quickstart ~]$ beeline -u jdbc:hive2://quickstart:10000/default -d org.apache.hive.jdbc.HiveDriver
+
+//create the weather table
+2016-12-12 10:35:53,931 WARN  [main] mapreduce.TableMapReduceUtil: The hbase-prefix-tree module jar containing PrefixTreeCodec is not present.  Continuing without it.
+Connecting to jdbc:hive2://quickstart:10000/default
+Connected to: Apache Hive (version 1.1.0-cdh5.8.0)
+Driver: Hive JDBC (version 1.1.0-cdh5.8.0)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 1.1.0-cdh5.8.0 by Apache Hive
+0: jdbc:hive2://quickstart:10000/default> create external table bosweather5y(est date,maxTemp int, meanTemp int, minTemp int, maxdewpoint int, meandewpoint int, mindewpoint int, maxhumdity int, meanhumidity int, minhumidity int, maxsealevel int, meansealevel int, minsealevel int, maxvisbility int, meanvisbility int, minvisbility int, maxwindspeed int, meanwindspeed int, maxgustspeed int, precipitation int, cloudcover int, event string, winddirdegree int)

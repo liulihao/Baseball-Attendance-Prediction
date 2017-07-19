@@ -1,0 +1,89 @@
+
+This files includes our steps to create a merged tables for 5-year game records and cleaning the gamelog table.
+
+//make the directory for  the 5 year bos game logs
+
+[cloudera@quickstart ~]$ hdfs dfs -mkdir bos5
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/gamelog_2011.csv bos5
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/gamelog_2012.csv bos5
+[cloudera@quickstart ~]$ hdfs dfs -getmerge bos5 /home/cloudera/Desktop/2/gamelog5year.csv
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/gamelog_2013.csv bos5
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/gamelog_2014.csv bos5
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/bos/gamelog_2015.csv bos5
+
+// merge into one files 
+[cloudera@quickstart ~]$ hdfs dfs -getmerge bos5 /home/cloudera/Desktop/2/gamelog5year.csv
+[cloudera@quickstart ~]$ hdfs dfs -cat bos5/gamelog5year.csv
+
+// put the merged files into pdfs
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/gamelog5year.csvbos5
+
+
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Desktop/2/gamelog5year.csv bos5
+
+//check the files under directory
+
+[cloudera@quickstart ~]$ hdfs dfs -ls bos5
+Found 6 items
+-rw-r--r--   1 cloudera cloudera      20579 2016-12-11 23:10 bos5/gamelog5year.csv
+-rw-r--r--   1 cloudera cloudera       4105 2016-12-11 22:52 bos5/gamelog_2011.csv
+-rw-r--r--   1 cloudera cloudera       4105 2016-12-11 22:53 bos5/gamelog_2012.csv
+-rw-r--r--   1 cloudera cloudera       4222 2016-12-11 23:05 bos5/gamelog_2013.csv
+-rw-r--r--   1 cloudera cloudera       4077 2016-12-11 23:05 bos5/gamelog_2014.csv
+-rw-r--r--   1 cloudera cloudera       4070 2016-12-11 23:05 bos5/gamelog_2015.csv
+
+//cat for more running details, please check cattail.txt
+[cloudera@quickstart ~]$ hdfs dfs -cat bos5/gamelog5year.csv
+Date,Weekend,Promotion,Gm#,Tm,Opp,W-L,Rank,GB,D/N,Attendance,Streak
+2011-4-8,0,0,7,BOS,NYY,1-6,4,4.5,D,37178,+
+2011-4-9,1,0,8,BOS,NYY,1-7,4,5.0,D,37488,-
+2011-4-10,1,0,9,BOS,NYY,2-7,4,4.0,N,37861,+
+2011-4-11,0,0,10,BOS,TBR,2-8,4,4.5,N,37568,-
+2011-4-12,0,0,11,BOS,TBR,2-9,5,5.0,N,37015,--
+2011-4-15,0,0,12,BOS,TOR,2-10,5,5.0,N,37467,---
+2011-4-16,1,0,13,BOS,TOR,3-10,5,5.0,D,37310,+
+2011-4-17,1,0,14,BOS,TOR,4-10,5,5.0,D,37802,++
+2011-4-18,0,0,15,BOS,TOR,5-10,5,4.5,D,37916,+++
+2011-4-29,0,0,25,BOS,SEA,11-14,5,4.0,N,37845,-
+2011-4-30,1,0,26,BOS,SEA,11-15,5,5.0,N,37901,--
+2011-5-1,1,0,27,BOS,SEA,12-15,5,5.0,D,37079,+
+
+//start to run hive for ballgame tables
+beeline -u jdbc:hive2://quickstart:10000/default -d org.apache.hive.jdbc.HiveDriver
+
+
+// create the gamelog table
+
+0: jdbc:hive2://quickstart:10000/default> create external table boslog(date date, weekend int,promotion int, tm string, opp string, wl string, rank int, gb string, dorn string, attendance int, streak string)
+. . . . . . . . . . . . . . . . . . . . > row format delimited fields terminated by ','
+. . . . . . . . . . . . . . . . . . . . > location '/user/cloudera/bos5';
+
+//describe the gamelog
++-------------+------------+----------+--+
+|  col_name   | data_type  | comment  |
++-------------+------------+----------+--+
+| date        | date       |          |
+| weekend     | int        |          |
+| promotion   | int        |          |
+| tm          | string     |          |
+| opp         | string     |          |
+| wl          | string     |          |
+| rank        | int        |          |
+| gb          | string     |          |
+| dorn        | string     |          |
+| attendance  | int        |          |
+| streak      | string     |          |
++-------------+------------+----------+--
+
+// show gamelog table
+
+0: jdbc:hive2://quickstart:10000/default> select * from boslog;
+//  data cleaning remove the unnecessary heading 
+ -              |
+| NULL         | NULL            | NULL              | NULL       | Tm         | Opp         | W-L        | NULL         | GB         | D/N          | NULL               | Streak         |
+
+ the gamelog table so far includes the headings from 5 cvs files, 
+
+0: jdbc:hive2://quickstart:10000/default> INSERT OVERWRITE TABLE bosLog SELECT * FROM bosLog WHERE tm not in ('Tm’);
+
+
